@@ -17,7 +17,7 @@
     <!-- Android Specific Settings -->
     <platform name="android">
         <preference name="android-minSdkVersion" value="20" />
-        <preference name="android-targetSdkVersion" value="36" /> <!-- Required for 2025 -->
+        <preference name="android-targetSdkVersion" value="35" /> <!-- Required for 2025 -->
         <allow-intent href="market:*" />
         
         <!-- Enable Splash Screen and Fullscreen -->
