@@ -29,21 +29,17 @@ jobs:
 
       - name: 5. Crear estructura y añadir plataforma
         run: |
-          # Limpiar plugins obsoletos si existen en config.xml para evitar errores
-          sed -i '/cordova-plugin-whitelist/d' config.xml
-          
-          # Configuración de protocolos seguros
+          # 1. Configurar protocolos seguros
           mkdir -p ~/.gradle
           echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
           
-          # Añadimos la plataforma PRIMERO para que exista la carpeta
+          # 2. Limpiar plugins obsoletos del config.xml si existen
+          sed -i '/cordova-plugin-whitelist/d' config.xml || true
+          
+          # 3. Añadir la plataforma Android
+          # Esto descargará automáticamente Gradle 8.10+ compatible con JDK 17
           cordova platform add android
           
-          # Ahora forzamos el wrapper de Gradle estable
-          cd platforms/android
-          ./gradlew wrapper --gradle-version 8.13 --distribution-type bin
-          cd ../..
-
       - name: 6. Compilar APK
         run: |
           # Usamos --no-telemetry y --stacktrace para diagnosticar si falla
