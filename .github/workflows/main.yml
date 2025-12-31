@@ -29,6 +29,9 @@ jobs:
 
       - name: 5. Crear estructura y añadir plataforma
         run: |
+          # Limpiar plugins obsoletos si existen en config.xml para evitar errores
+          sed -i '/cordova-plugin-whitelist/d' config.xml
+          
           # Configuración de protocolos seguros
           mkdir -p ~/.gradle
           echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
