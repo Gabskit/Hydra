@@ -27,18 +27,18 @@ jobs:
 
       - name: 4. Instalar Cordova
         run: npm install -g cordova
-           
+
       - name: 5. Crear estructura y añadir plataforma
         run: 
-          # Forzamos TLS para evitar el error 403 de Maven
-          mkdir -p ~/.gradle
-          echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
-          cd platforms/android
-          ./gradlew wrapper --gradle-version 8.13 --distribution-type bin
-          cd ../..
+              # Forzamos TLS para evitar el error 403 de Maven
+              mkdir -p ~/.gradle
+              echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
+              cd platforms/android
+              ./gradlew wrapper --gradle-version 8.13 --distribution-type bin
+              cd ../..
 
-          # Añadimos la plataforma (esto crea la carpeta 'platforms')
-          cordova platform add android
+              # Añadimos la plataforma (esto crea la carpeta 'platforms')
+              cordova platform add android
 
       - name: 6. Compilar APK
         run: 
