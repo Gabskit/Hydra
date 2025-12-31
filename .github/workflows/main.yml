@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Permite ejecutarlo manualmente desde la web de GitHub
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,7 +18,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          # Eliminamos la opción 'cache: gradle' para evitar el error de "No file matched"
 
       - name: 3. Instalar Node.js
         uses: actions/setup-node@v4
@@ -29,21 +28,23 @@ jobs:
         run: npm install -g cordova
 
       - name: 5. Crear estructura y añadir plataforma
-        run: 
-              # Forzamos TLS para evitar el error 403 de Maven
-              mkdir -p ~/.gradle
-              echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
-              cd platforms/android
-              ./gradlew wrapper --gradle-version 8.13 --distribution-type bin
-              cd ../..
-
-              # Añadimos la plataforma (esto crea la carpeta 'platforms')
-              cordova platform add android
+        run: |
+          # Configuración de protocolos seguros
+          mkdir -p ~/.gradle
+          echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
+          
+          # Añadimos la plataforma PRIMERO para que exista la carpeta
+          cordova platform add android
+          
+          # Ahora forzamos el wrapper de Gradle estable
+          cd platforms/android
+          ./gradlew wrapper --gradle-version 8.13 --distribution-type bin
+          cd ../..
 
       - name: 6. Compilar APK
-        run: 
-          # Usamos '--no-telemetry' para evitar prompts interactivos que traban el servidor
-          cordova build android --debug --no-telemetry
+        run: |
+          # Usamos --no-telemetry y --stacktrace para diagnosticar si falla
+          cordova build android --debug --no-telemetry -- --stacktrace
 
       - name: 7. Subir APK resultante
         uses: actions/upload-artifact@v4
