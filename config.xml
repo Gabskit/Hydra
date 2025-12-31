@@ -1,5 +1,30 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.polar.hydraria" version="0.0.8" xmlns="www.w3.org">
+<widget id="com.polar.hydraria" version="0.0.8" xmlns="www.w3.org" xmlns:cdv="cordova.apache.org">
+    
+    <!-- App Info -->
     <name>Hydraria</name>
+    <description>Juego de aventuras hídricas, hecho en jquery mobile, alpine y p5</description>
+    <author>Gabs</author>
+
+    <!-- Main Entry Point -->
     <content src="index.html" />
+
+    <!-- Security & Access (Required for modern Android) -->
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    
+    <!-- Android Specific Settings -->
+    <platform name="android">
+        <preference name="android-minSdkVersion" value="20" />
+        <preference name="android-targetSdkVersion" value="36" /> <!-- Required for 2025 -->
+        <allow-intent href="market:*" />
+        
+        <!-- Enable Splash Screen and Fullscreen -->
+        <preference name="Fullscreen" value="true" />
+        <preference name="Orientation" value="landscape" />
+    </platform>
+
+    <!-- Cordova Plugins -->
+    <plugin name="cordova-plugin-whitelist" spec="1" />
 </widget>
