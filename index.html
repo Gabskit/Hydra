@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <script type="text/javascript" src="cdn_modules/jquery@1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="cdn_modules/jquery-mobile@1.3.2/jquery.mobile.js"></script>
+  <link rel="stylesheet" href="cdn_modules/jquery-mobile@1.3.2/jquery.mobile.css">
+  <link rel="stylesheet" href="icon.css">
+  <script src="cordova.js"></script>
+  <style>
+    @font-face {
+      font-family: "Sniglet";
+      src: url("assets/Sniglet-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Sniglet";
+      src: url("assets/Sniglet-ExtraBold.ttf") format("truetype");
+      font-weight: 800;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("assets/Comfortaa-Light.ttf") format("truetype");
+      font-weight: 300;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("assets/Comfortaa-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+    }
+    .Comfortaa {
+      font-family: "Comfortaa" !important;
+    }
+    .Sniglet {
+      font-family: "Sniglet" !important;
+    }
+    *{
+      font-size: 10pt !important;
+      transition: 0.5s !important;
+    }
+  </style>
+</head>
+<body>
+  <div x-data="datos" data-role="page" id="inicio">
+    <div data-role="header" data-theme="b" style="display: flex; align-items: center; justify-content: space-around;">
+      <img src="" alt="Logo">
+      <div data-role="controlgroup" data-type="horizontal">
+        <a class="Comfortaa" data-role="button" href="#novedad" data-theme="c" data-transition="pop" data-rel="dialog">Novedades 📰</a>
+        <a class="Sniglet" data-role="button" href="#" data-theme="e" data-icon="cart" data-rel="dialog" data-transition="pop">Tienda</a>
+      </div>
+      <div style="display: flex;">
+        <p class="Sniglet">💵: $</p>
+        <p x-text="money" class="Sniglet"></p>
+      </div>
+      <div data-role="controlgroup" data-type="horizontal">
+        <a href="#ajus" data-role="button" data-icon="gear" data-iconpos="notext" data-theme="a" data-transition="flip"></a>
+        <button x-on:click="exit" data-icon="delete" data-iconpos="notext" data-theme="a" ></button>
+      </div>
+    </div>
+    <div data-role="content" data-theme="a" style="display: flex; flex-direction: row; flex: 1; align-items: center; justify-content: space-around;">
+      <a data-role="button" href="#selec" data-transition="pop" data-rel="dialog">🌟</a>
+    </div>
+    <div data-role="footer" data-theme="b" style="display: flex; align-items: center; justify-content: space-around;">
+      <div style="padding: 0; margin: 0; display: flex;">
+        <a data-role="button" data-theme="b" data-rel="dialog" data-transition="slideup" href="#">🎒</a>
+      </div>
+    </div>
+  </div>
+  <!--seleccion-->
+  <div x-data="datos" data-role="page" id="selec">
+    <div data-role="header" data-theme="a">
+      <h1 class="Comfortaa">Nose</h1>
+    </div>
+    <div data-role="content" data-theme="c">
+      <div data-role="controlgroup">
+        <div data-role="collapsible" data-theme="a" data-content-theme="c">
+          <h4 class="Sniglet">Dev</h4>
+          <div data-role="controlgroup">
+            <button x-on:click="change" data-theme="b"><img src="/assets/ic_offline_icon.png" alt="dev campaña img" height="100px" width="100px"><h2 class="Comfortaa">Campaña de prueba</h2><p class="Sniglet">Campaña para probar mecánicas</p></button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--ajustes-->
+  <div data-role="page" id="novedad">
+    <div data-role="header" data-theme="c">
+      <h1 class="Sniglet">Novedades 📰</h1>
+    </div>
+    <div data-role="content" data-theme="d">
+      <p class="Comfortaa">Aqui van las novedades ok?</p>
+    </div>
+  </div>
+  <!--scripts-->
+  <script defer type="text/javascript" src="cdn_modules/alpinejs@3.15.0/cdn.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <script type="text/javascript" src="cdn_modules/jquery@1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="cdn_modules/jquery-mobile@1.3.2/jquery.mobile.js"></script>
+  <link rel="stylesheet" href="cdn_modules/jquery-mobile@1.3.2/jquery.mobile.css">
+  <link rel="stylesheet" href="icon.css">
+  <style>
+    @font-face {
+      font-family: "Sniglet";
+      src: url("assets/Sniglet-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Sniglet";
+      src: url("assets/Sniglet-ExtraBold.ttf") format("truetype");
+      font-weight: 800;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("assets/Comfortaa-Light.ttf") format("truetype");
+      font-weight: 300;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("assets/Comfortaa-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+    }
+    .Comfortaa {
+      font-family: "Comfortaa" !important;
+    }
+    .Sniglet {
+      font-family: "Sniglet" !important;
+    }
+    *{
+      font-size: 10pt !important;
+      transition: 0.5s !important;
+    }
+  </style>
+  <script src="game.js"></script>
+  <script type="text/javascript" src="cdn_modules/p5.js@2.0.5/p5.min.js"></script>
+</head>
+<body>
+  <div data-role="page" id="game">
+    <div data-role="header" data-theme="b">
+      <a href="#pausa" data-role="button" data-theme="a" data-rel="dialog" data-icon="pause" data-iconpos="notext"></a>
+      <h1></h1>
+    </div>
+    <div data-role="content" data-theme="a" style="padding: 0;">
+      <div id="container" style="padding: 0; margin: 0;"></div>
+    </div>
+  </div>
+  <div x-data="gamedata" data-role="page" id="pausa">
+    <div data-role="header" data-theme="a">
+      <h1>Pausa</h1>
+    </div>
+    <div data-role="content" data-theme="c">
+      <ul data-role="listview" data-inset="true">
+        <li data-role="list-divider" data-theme="a"><b class="Sniglet">Puntuacion:&nbsp</b><b x-text="score" class="Comfortaa">0</b></li>
+        <li><a href="#conmen" data-rel="popup" data-transition="slideup" class="Comfortaa">Volver al menu</a></li>
+        <li><fieldset data-role="controlgroup" data-type="horizontal">
+          <input type="checkbox" name="soubtn" id="soubtn" checked data-theme="a">
+          <label for="soubtn">🔊</label>
+          <input type="checkbox" name="vibbtn" id="vibbtn" data-theme="a">
+          <label for="vibbtn">📳</label>
+        </fieldset></li>
+      </ul>
+      <div data-role="popup" id="conmen" data-theme="b" data-overlay-theme="a" style="min-width: 300px;">
+        <div data-role="header" data-theme="b">
+          <h1 class="Comfortaa">¿Quieres salir?</h1>
+        </div>
+        <div data-theme="c" style="padding: 0.8em;">
+          <div data-role="controlgroup" data-type="horizontal">
+            <button x-on:click="exit"><div class="Comfortaa">Salir</div></button>
+            <a class="Sniglet" href="#" data-role="button" data-rel="back">Continuar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="cdn_modules/alpinejs@3.15.0/cdn.min.js"></script>
+</body>
+</html>
