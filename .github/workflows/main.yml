@@ -2,46 +2,49 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ] # Se ejecutará cada vez que subas algo a la rama main
+    branches: [ main ]
+  workflow_dispatch: # Permite ejecutarlo manualmente desde la web de GitHub
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
+      - name: 1. Descargar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Instalar Java (JDK 17)
+      - name: 2. Instalar Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle' 
+          # Eliminamos la opción 'cache: gradle' para evitar el error de "No file matched"
 
-      - name: Instalar Cordova
+      - name: 3. Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 4. Instalar Cordova
         run: npm install -g cordova
-        
-      - name: Configurar Repositorios
+
+      - name: 5. Crear estructura y añadir plataforma
         run: |
+          # Forzamos TLS para evitar el error 403 de Maven
           mkdir -p ~/.gradle
           echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
-
-      - name: Preparar Android Platform
-        run: |
+          
+          # Añadimos la plataforma (esto crea la carpeta 'platforms')
           cordova platform add android
-          # Esto descarga las herramientas necesarias
 
-      - name: Compilar APK (Debug)
-        run: cordova build android --debug --verbose
+      - name: 6. Compilar APK
+        run: |
+          # Usamos '--no-telemetry' para evitar prompts interactivos que traban el servidor
+          cordova build android --debug --no-telemetry
 
-      - name: Subir APK como artefacto
+      - name: 7. Subir APK resultante
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: Hydra-Debug-APK
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
