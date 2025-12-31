@@ -22,9 +22,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle' 
 
       - name: Instalar Cordova
         run: npm install -g cordova
+        
+      - name: Configurar Repositorios
+        run: |
+          mkdir -p ~/.gradle
+          echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
 
       - name: Preparar Android Platform
         run: |
@@ -32,7 +38,7 @@ jobs:
           # Esto descarga las herramientas necesarias
 
       - name: Compilar APK (Debug)
-        run: cordova build android --debug
+        run: cordova build android --debug --verbose
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
