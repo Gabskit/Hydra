@@ -35,23 +35,23 @@ jobs:
 
       - name: 6. Parchear Plugin BarcodeScanner y Fix SDK
         run: |
-          # SOLUCIÓN ERROR 1: Reemplazar 'compile' (obsoleto) por 'implementation'
-          # Usamos un comando que busca en todos los archivos .gradle para no fallar
+          # SOLUCIÓN ERROR 1: Reemplazar 'compile' (con o sin espacio/paréntesis)
+          find platforms/android/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # SOLUCIÓN ERROR 2: Forzar compileSdkVersion que el plugin está borrando
-          # Esto inyecta las variables directamente en el motor de Gradle
-          echo "cdv_compileSdkVersion=34" >> platforms/android/gradle.properties
-          echo "cdv_targetSdkVersion=34" >> platforms/android/gradle.properties
+          # SOLUCIÓN ERROR 2: Forzar versiones en gradle.properties
+          # Usamos las claves exactas que Cordova Android 13 busca
+          echo "android.useAndroidX=true" >> platforms/android/gradle.properties
+          echo "android.enableJetifier=true" >> platforms/android/gradle.properties
+          echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
+          echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           
-          # Dar permisos de ejecución al wrapper de Gradle en su ruta de 2026
-          find platforms/android/ -name "gradlew" -exec chmod +x {} +
-
+          # Dar permisos de ejecución al wrapper
+          chmod +x platforms/android/gradlew
+     
       - name: 7. Compilar APK
-        run: |
-          # Ejecutamos la compilación pasando el SDK explícitamente como último recurso
-          cordova build android --debug --no-telemetry -- --compileSdkVersion=34
-
+        run: cordova build android --debug --device --no-telemetry
+        
       - name: 8. Subir APK resultante
         uses: actions/upload-artifact@v4
         with:
