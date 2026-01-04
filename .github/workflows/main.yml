@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: vbbb
+        run: |
+           cordova platform remove android
+           
       - name: 1. Descargar codigo
         uses: actions/checkout@v4
 
@@ -38,7 +42,8 @@ jobs:
           
           # 3. Añadir la plataforma Android
           # Esto descargará automáticamente Gradle 8.10+ compatible con JDK 17
-          cordova platform add android
+          cordova platform add android@latest
+           
 
       - name: Accept Android SDK Licenses
         uses: android-actions/setup-android@v3
@@ -53,7 +58,7 @@ jobs:
           
           # 3. Usar SOLO el comando de cordova para construir
           # Esto evita errores de "file not found" y maneja las dependencias automáticamente
-          cordova build android --debug --no-telemetry --stacktrace
+          cordova build android --debug --verbose -- --warning-mode=all --stacktrace
 
       - name: 7. Subir APK resultante
         uses: actions/upload-artifact@v4
