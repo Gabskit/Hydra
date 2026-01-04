@@ -42,7 +42,11 @@ jobs:
           cordova platform remove android
           cordova platform add android@latest
 
-           
+      - name: Patch BarcodeScanner Gradle
+         run: |
+             sed -i 's/compile /implementation /g' platforms/android/phonegap-plugin-barcodescanner/*.gradle
+
+
 
       - name: Accept Android SDK Licenses
         uses: android-actions/setup-android@v3
