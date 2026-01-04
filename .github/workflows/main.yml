@@ -28,35 +28,34 @@ jobs:
       - name: 4. Instalar Cordova
         run: npm install -g cordova
 
-      - name: 5. Añadir plataforma Android
+      - name: 5. Preparar Config y Añadir Plataforma
         run: |
-          # Instalamos la versión más estable para 2026
+          # FIJAR EL PROBLEMA DE RAÍZ: Inyectar el namespace en config.xml ANTES de añadir la plataforma
+          sed -i 's/<widget/<widget xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android"/' config.xml
+          
+          # Añadir la plataforma (esto leerá el config.xml ya corregido)
           cordova platform add android@13.0.0 --save
 
-      - name: 5.5 Prepare Platform
-        run: cordova prepare android
-        
-      - name: 6. Parchear Plugin, XML y Manifest
+      - name: 6. Parchear Archivos Generados
         run: |
-          # 1. Corregir el Namespace en config.xml (Raíz del problema)
-          sed -i 's/<widget/<widget xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android"/' config.xml
+          # 1. Reparar el AndroidManifest (Fuerza bruta contra el error 'Missing name key')
+          # Buscamos patrones como ' :name' o ' :required' que perdieron el prefijo
+          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :name/ android:name/g' {} +
+          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :required/ android:required/g' {} +
+          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :targetActivity/ android:targetActivity/g' {} +
 
-          # 2. Parchear el Plugin BarcodeScanner (Error de Gradle 'compile')
+          # 2. Corregir el plugin BarcodeScanner (Error 'compile')
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 3. FIX CRÍTICO: Reparar el AndroidManifest corrompido
-          # Esto busca los atributos ':name' que perdieron el prefijo 'android' y se los devuelve
-          sed -i 's/\ :name/ android:name/g' platforms/android/app/src/main/AndroidManifest.xml
-          sed -i 's/\ :required/ android:required/g' platforms/android/app/src/main/AndroidManifest.xml
-
-          # 4. Forzar versiones de SDK en gradle.properties
+          # 3. Forzar SDK 34 (Evitar el error de SDK 36 que sale en tus logs)
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
+          echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
           
-          # 5. Permisos de ejecución
+          # 4. Dar permisos al wrapper
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
-          
+
       - name: 7. Compilar APK
         run: cordova build android --debug --device --no-telemetry
         
