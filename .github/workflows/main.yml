@@ -43,7 +43,7 @@ jobs:
           cordova platform add android@latest
 
       - name: Patch BarcodeScanner Gradle
-         run: |
+        run: |
              sed -i 's/compile /implementation /g' platforms/android/phonegap-plugin-barcodescanner/*.gradle
 
 
