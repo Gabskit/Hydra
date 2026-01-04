@@ -28,29 +28,28 @@ jobs:
       - name: 4. Instalar Cordova
         run: npm install -g cordova
 
-      - name: 5. Crear estructura y añadir plataforma
+      - name: 5. Añadir plataforma Android
         run: |
-          # Añadir la plataforma más reciente de 2026
+          # Instalamos la versión más estable para 2026
           cordova platform add android@13.0.0 --save
-          
-      - name: 6. Parchear Plugins y Configuración
+
+      - name: 6. Parchear Plugin BarcodeScanner y Fix SDK
         run: |
-          # 1. Corregir método 'compile' obsoleto en todos los archivos .gradle
+          # SOLUCIÓN ERROR 1: Reemplazar 'compile' (obsoleto) por 'implementation'
+          # Usamos un comando que busca en todos los archivos .gradle para no fallar
           find platforms/android/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. Forzar versiones de SDK para evitar el error "compileSdkVersion is not specified"
-          # Creamos/actualizamos el archivo gradle.properties en la ubicación correcta
+          # SOLUCIÓN ERROR 2: Forzar compileSdkVersion que el plugin está borrando
+          # Esto inyecta las variables directamente en el motor de Gradle
           echo "cdv_compileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdv_targetSdkVersion=34" >> platforms/android/gradle.properties
+          
+          # Dar permisos de ejecución al wrapper de Gradle en su ruta de 2026
+          find platforms/android/ -name "gradlew" -exec chmod +x {} +
 
       - name: 7. Compilar APK
         run: |
-          # En 2026, gradlew suele estar en platforms/android/tools/ o se invoca vía Cordova
-          # Primero intentamos dar permisos a todas las posibles ubicaciones del wrapper
-          find platforms/android/ -name "gradlew" -exec chmod +x {} +
-          
-          # Es mejor dejar que Cordova gestione la llamada a Gradle internamente
-          # Pasamos las variables de SDK como argumentos adicionales
+          # Ejecutamos la compilación pasando el SDK explícitamente como último recurso
           cordova build android --debug --no-telemetry -- --compileSdkVersion=34
 
       - name: 8. Subir APK resultante
