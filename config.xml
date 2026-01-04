@@ -15,6 +15,9 @@
     <allow-intent href="https://*/*" />
     
     <!-- Android Specific Settings -->
+    <edit-config target="application" file="app/src/main/AndroidManifest.xml" mode="merge">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
     <platform name="android">
         <preference name="android-minSdkVersion" value="21" />
         <preference name="android-targetSdkVersion" value="35" /> <!-- Required for 2025 -->
@@ -23,8 +26,19 @@
         <!-- Enable Splash Screen and Fullscreen -->
         <preference name="Fullscreen" value="true" />
         <preference name="Orientation" value="landscape" />
+        <config-file target="AndroidManifest.xml" parent="/*">
+        <uses-permission name="android.permission.INTERNET" />
+        <uses-permission name="android.permission.ACCESS_WIFI_STATE" />
+        <uses-permission name="android.permission.ACCESS_NETWORK_STATE" />
+        <uses-permission name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+        <uses-permission name="android.permission.CAMERA" />
+        <uses-permission name="android.permission.FLASHLIGHT" />
+    </config-file>
     </platform>
 
     <!-- Cordova Plugins -->
+    <plugin name="cordova-plugin-networkinterface" spec="~2.0.0" />
+    <plugin name="cordova-plugin-websocket-server" spec="~1.5.0" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="~8.1.0" />
 </widget>

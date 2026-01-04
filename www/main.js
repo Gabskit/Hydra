@@ -24,7 +24,46 @@ document.addEventListener("alpine:init", () => {
     }
         }
     }))
-    
+    Alpine.data('lobbyHydraria', () => ({
+    role: 'none',
+    count: 1,
+
+    setupHost() {
+      this.role = 'host';
+      networkinterface.getWiFiIPAddress((ip) => {
+        // Guardamos la IP para el juego, pero no la mostramos
+        localStorage.setItem('serverIP', ip);
+        
+        // Generamos el QR automáticamente
+        new QRCode(document.getElementById("qrcode"), {
+            text: ip,
+            width: 128,
+            height: 128
+        });
+
+        // Iniciamos el servidor intermedio en este teléfono
+        wsserver.start(8080, {
+          'onMessage': (conn, msg) => { 
+            wsserver.broadcast(msg); 
+            this.count = wsserver.connections.length;
+          }
+        });
+      });
+    },
+
+    setupClient() {
+      // Abre la cámara del móvil para escanear al Host
+      cordova.plugins.barcodeScanner.scan(
+        (result) => {
+          if(!result.cancelled) {
+            localStorage.setItem('serverIP', result.text); // Recibe la IP del QR
+            $.mobile.changePage("game.html");
+          }
+        },
+        (error) => { alert("Error al escanear: " + error); }
+      );
+    }
+  }))
 })
 
 function fillContent() {

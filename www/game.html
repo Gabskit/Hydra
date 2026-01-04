@@ -48,12 +48,24 @@
   </style>
   <script src="game.js"></script>
   <script type="text/javascript" src="cdn_modules/p5.js@2.0.5/p5.min.js"></script>
+  <script type="text/javascript" src="cdn_modules/socket.io@4.8.1/socket.io.js"></script>
 </head>
 <body>
-  <div data-role="page" id="game">
-    <div data-role="header" data-theme="b">
-      <a href="#pausa" data-role="button" data-theme="a" data-rel="dialog" data-icon="pause" data-iconpos="notext"></a>
-      <h1></h1>
+  <div x-data="gamescn" data-role="page" id="game">
+    <div data-role="header" data-theme="b" style="display: flex; align-items: center; justify-content: space-around;">
+      <div><a href="#pausa" data-role="button" data-theme="a" data-rel="dialog" data-icon="pause" data-iconpos="notext"></a></div>
+      <div>
+        <a href="#chat" data-role="button" data-theme="a" data-rel="popup" data-transition="pop">#</a>
+      </div>
+      <div data-role="popup" id="chat" style="max-width: 360px; max-height: 480px; display: block;">
+        <div style="padding: 0.8em;">
+          <p x-text="lochat" class="Sniglet"></p>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-around;">
+          <input type="text" name="msg" id="msg">
+          <button data-icon="arrow-r" data-iconpos="notext"></button>
+        </div>
+      </div>
     </div>
     <div data-role="content" data-theme="a" style="padding: 0;">
       <div id="container" style="padding: 0; margin: 0;"></div>
@@ -74,7 +86,7 @@
           <label for="vibbtn">📳</label>
         </fieldset></li>
       </ul>
-      <div data-role="popup" id="conmen" data-theme="b" data-overlay-theme="a" style="min-width: 300px;">
+      <div data-role="popup" id="conmen" data-overlay-theme="a" style="min-width: 300px;">
         <div data-role="header" data-theme="b">
           <h1 class="Comfortaa">¿Quieres salir?</h1>
         </div>
