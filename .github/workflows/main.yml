@@ -41,7 +41,8 @@ jobs:
           cordova platform add android
 
       - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses
+        run: | 
+           sdkmanager --licenses
 
       - name: 6. Compilar APK
         run: |
