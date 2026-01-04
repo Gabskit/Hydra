@@ -36,25 +36,23 @@ jobs:
           # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Parchear Plugin, XML y Manifest (Sniper Fix)
+      - name: 6. Parchear Plugin, XML y Manifest (Clean Fix)
         run: |
           # 1. Fix BarcodeScanner 'compile' error
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. REPARACIÓN DEL MANIFEST (El error real: name= en lugar de android:name=)
-          # Buscamos cualquier ' name=' que no tenga el prefijo 'android:' y se lo ponemos
-          # También lo hacemos para 'required='
+          # 2. REPARACIÓN DEL MANIFEST (Sin romper la estructura XML)
+          # Cambiamos ' name=' por ' android:name=' solo donde falte el prefijo
           sed -i 's/\ name=/ android:name=/g' platforms/android/app/src/main/AndroidManifest.xml
           sed -i 's/\ required=/ android:required=/g' platforms/android/app/src/main/AndroidManifest.xml
           
-          # Limpieza extra: Eliminar duplicados si los hay (vimos dos INTERNET permissions en tu log)
-          # Esto evita que el Manifest Merger se queje por entradas repetidas
-          sort -u platforms/android/app/src/main/AndroidManifest.xml -o platforms/android/app/src/main/AndroidManifest.xml
+          # Eliminamos posibles duplicados de 'android:android:' que el comando anterior pueda crear
+          sed -i 's/android:android:/android:/g' platforms/android/app/src/main/AndroidManifest.xml
 
-          # 3. VERIFICACIÓN (Para confirmar en el log)
-          echo "--- REVISANDO MANIFEST CORREGIDO ---"
-          grep "uses-permission" platforms/android/app/src/main/AndroidManifest.xml | head -n 5
+          # 3. VERIFICACIÓN (Verificamos que el XML se vea sano)
+          echo "--- REVISANDO MANIFEST (Primeras 20 líneas) ---"
+          head -n 20 platforms/android/app/src/main/AndroidManifest.xml
           
           # 4. Forzar versiones de SDK
           echo "cdvCompileSdkVersion=36" >> platforms/android/gradle.properties
