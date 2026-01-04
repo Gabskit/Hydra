@@ -40,6 +40,5 @@
     <!-- Cordova Plugins -->
     <plugin name="cordova-plugin-networkinterface" spec="~2.0.0" />
     <plugin name="cordova-plugin-websocket-server" spec="~1.5.0" />
-    <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="phonegap-plugin-barcodescanner" spec="~8.1.0" />
 </widget>
