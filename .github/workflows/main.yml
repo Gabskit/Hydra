@@ -30,40 +30,32 @@ jobs:
 
       - name: 5. Crear estructura y añadir plataforma
         run: |
-          # 1. Configurar protocolos seguros
-          mkdir -p ~/.gradle
-          echo "systemProp.https.protocols=TLSv1.2,TLSv1.3" >> ~/.gradle/gradle.properties
+          # Añadir la plataforma más reciente de 2026
+          cordova platform add android@13.0.0 --save
           
-          # 2. Limpiar plugins obsoletos del config.xml si existen
-          sed -i '/cordova-plugin-whitelist/d' config.xml || true
-          
-          # 3. Añadir la plataforma Android
-          # Esto descargará automáticamente Gradle 8.10+ compatible con JDK 17
-          cordova platform remove android
-          cordova platform add android@latest
-
-      - name: Patch BarcodeScanner Gradle
+      - name: 6. Parchear Plugins y Configuración
         run: |
-             sed -i 's/compile /implementation /g' platforms/android/phonegap-plugin-barcodescanner/*.gradle
-
-
+          # Solución al Error 1: Reemplazar 'compile' por 'implementation' en TODO el proyecto android
+          # El error estaba en que el archivo .gradle del plugin usa sintaxis de hace 10 años
+          find platforms/android/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
+          
+          # Solución al Error 2: Forzar compileSdkVersion y targetSdkVersion
+          # Esto evita el error "compileSdkVersion is not specified"
+          echo "cdv_compileSdkVersion=34" >> platforms/android/gradle.properties
+          echo "cdv_targetSdkVersion=34" >> platforms/android/gradle.properties
 
       - name: Accept Android SDK Licenses
         uses: android-actions/setup-android@v3
 
-      - name: 6. Compilar APK
+      - name: 7. Compilar APK
         run: |
-          # 1. Asegurarnos de que estamos en la raíz para que Cordova funcione
-          # 2. Dar permisos al wrapper si planeas usarlo (opcional pero recomendado)
-          if [ -f "platforms/android/gradlew" ]; then
-            chmod +x platforms/android/gradlew
-          fi
+          # Dar permisos al ejecutable de Gradle generado
+          chmod +x platforms/android/gradlew
           
-          # 3. Usar SOLO el comando de cordova para construir
-          # Esto evita errores de "file not found" y maneja las dependencias automáticamente
-          cordova build android --debug --verbose -- --warning-mode=all --stacktrace
+          # Compilar usando las variables de entorno de Cordova para asegurar el SDK
+          cordova build android --debug --no-telemetry -- --ext.cdv_compileSdkVersion=34
 
-      - name: 7. Subir APK resultante
+      - name: 8. Subir APK resultante
         uses: actions/upload-artifact@v4
         with:
           name: Hydra-Debug-APK
