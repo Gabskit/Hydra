@@ -35,25 +35,23 @@ jobs:
           
       - name: 6. Parchear Plugins y Configuración
         run: |
-          # Solución al Error 1: Reemplazar 'compile' por 'implementation' en TODO el proyecto android
-          # El error estaba en que el archivo .gradle del plugin usa sintaxis de hace 10 años
+          # 1. Corregir método 'compile' obsoleto en todos los archivos .gradle
           find platforms/android/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # Solución al Error 2: Forzar compileSdkVersion y targetSdkVersion
-          # Esto evita el error "compileSdkVersion is not specified"
+          # 2. Forzar versiones de SDK para evitar el error "compileSdkVersion is not specified"
+          # Creamos/actualizamos el archivo gradle.properties en la ubicación correcta
           echo "cdv_compileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdv_targetSdkVersion=34" >> platforms/android/gradle.properties
 
-      - name: Accept Android SDK Licenses
-        uses: android-actions/setup-android@v3
-
       - name: 7. Compilar APK
         run: |
-          # Dar permisos al ejecutable de Gradle generado
-          chmod +x platforms/android/gradlew
+          # En 2026, gradlew suele estar en platforms/android/tools/ o se invoca vía Cordova
+          # Primero intentamos dar permisos a todas las posibles ubicaciones del wrapper
+          find platforms/android/ -name "gradlew" -exec chmod +x {} +
           
-          # Compilar usando las variables de entorno de Cordova para asegurar el SDK
-          cordova build android --debug --no-telemetry -- --ext.cdv_compileSdkVersion=34
+          # Es mejor dejar que Cordova gestione la llamada a Gradle internamente
+          # Pasamos las variables de SDK como argumentos adicionales
+          cordova build android --debug --no-telemetry -- --compileSdkVersion=34
 
       - name: 8. Subir APK resultante
         uses: actions/upload-artifact@v4
