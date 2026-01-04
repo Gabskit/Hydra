@@ -36,35 +36,30 @@ jobs:
           # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Parchear Plugin, XML y Manifest (Clean Sweep)
+      - name: 6. Parchear Plugin, XML y Manifest (Zero Tolerance)
         run: |
           # 1. Fix BarcodeScanner 'compile' error
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. REPARACIÓN DEL MANIFEST (Súper agresiva)
+          # 2. REPARACIÓN RADICAL DEL MANIFEST
           MANIFEST="platforms/android/app/src/main/AndroidManifest.xml"
           
-          # Paso A: Corregir cualquier 'name=' que no tenga 'android:'
-          sed -i 's/\ name=/ android:name=/g' $MANIFEST
-          sed -i 's/\ :name=/ android:name=/g' $MANIFEST
-          
-          # Paso B: Corregir cualquier 'required=' que no tenga 'android:'
-          sed -i 's/\ required=/ android:required=/g' $MANIFEST
-          sed -i 's/\ :required=/ android:required=/g' $MANIFEST
-          
-          # Paso C: Limpieza de prefijos duplicados (ej: android:android:name)
+          # Primero: Intentamos arreglar los que se puedan
+          sed -i 's/name=/android:name=/g' $MANIFEST
+          sed -i 's/required=/android:required=/g' $MANIFEST
           sed -i 's/android:android:/android:/g' $MANIFEST
 
-          # Paso D: Eliminar líneas de permisos que estén VACÍAS o MALFORMADAS (sin name)
-          # Esto borra cualquier tag <uses-permission /> que no tenga la palabra "android:name"
-          sed -i '/<uses-permission [^>]*android:name=/! { /<uses-permission/d }' $MANIFEST
+          # SEGUNDO: ELIMINAR CUALQUIER PERMISO ROTO (La clave del éxito)
+          # Borra cualquier línea que contenga 'uses-permission' pero NO contenga 'android:name'
+          # Esto elimina las líneas 33-38 que están causando el error.
+          sed -i '/<uses-permission/ { /android:name=/!d }' $MANIFEST
 
-          # 3. VERIFICACIÓN (Para ver si quedó alguna línea rota)
+          # 3. VERIFICACIÓN
           echo "--- REVISANDO MANIFEST FINAL ---"
           grep "uses-permission" $MANIFEST
           
-          # 4. Forzar versiones de SDK y suprimir warnings
+          # 4. Forzar versiones de SDK
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
