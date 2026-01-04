@@ -46,6 +46,7 @@
       transition: 0.5s !important;
     }
   </style>
+  <script type="text/javascript" src="cdn_modules/qrcodejs@1.0.0/qrcode.js"></script>
 </head>
 <body>
   <div x-data="datos" data-role="page" id="inicio">
@@ -81,6 +82,19 @@
     <div data-role="content" data-theme="c">
       <div data-role="controlgroup">
         <div data-role="collapsible" data-theme="a" data-content-theme="c">
+          <div x-data="lobbyHydraria" class="Sniglet">
+  <div x-show="role === 'none'" style="text-align: center;">
+    <button @click="setupHost" data-theme="b">CREAR PARTIDA (Host)</button>
+    <button @click="setupClient" data-theme="e">UNIRSE A PARTIDA (Scan)</button>
+  </div>
+
+  <div x-show="role === 'host'" style="text-align:center;">
+    <p class="Comfortaa">¡Tus amigos deben escanear esto!</p>
+    <div id="qrcode" style="display: inline-block; background: white; padding: 10px;"></div>
+    <p>Jugadores: <span x-text="count"></span>/4</p>
+    <button @click="start" data-theme="a">¡EMPEZAR!</button>
+  </div>
+</div>
           <h4 class="Sniglet">Dev</h4>
           <div data-role="controlgroup">
             <button x-on:click="change" data-theme="b"><img src="/assets/ic_offline_icon.png" alt="dev campaña img" height="100px" width="100px"><h2 class="Comfortaa">Campaña de prueba</h2><p class="Sniglet">Campaña para probar mecánicas</p></button>
