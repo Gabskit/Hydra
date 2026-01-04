@@ -36,35 +36,45 @@ jobs:
           # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Parchear Plugin, XML y Manifest (Zero Tolerance)
+      - name: 6. Crear Hook de Emergencia y Parchear
         run: |
-          # 1. Fix BarcodeScanner 'compile' error
+          # 1. Fix BarcodeScanner Gradle error
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
-          
-          # 2. REPARACIÓN RADICAL DEL MANIFEST
-          MANIFEST="platforms/android/app/src/main/AndroidManifest.xml"
-          
-          # Primero: Intentamos arreglar los que se puedan
-          sed -i 's/name=/android:name=/g' $MANIFEST
-          sed -i 's/required=/android:required=/g' $MANIFEST
-          sed -i 's/android:android:/android:/g' $MANIFEST
 
-          # SEGUNDO: ELIMINAR CUALQUIER PERMISO ROTO (La clave del éxito)
-          # Borra cualquier línea que contenga 'uses-permission' pero NO contenga 'android:name'
-          # Esto elimina las líneas 33-38 que están causando el error.
-          sed -i '/<uses-permission/ { /android:name=/!d }' $MANIFEST
-
-          # 3. VERIFICACIÓN
-          echo "--- REVISANDO MANIFEST FINAL ---"
-          grep "uses-permission" $MANIFEST
+          # 2. CREAR UN HOOK DE CORDOVA (Esto se ejecuta DURANTE el build)
+          # Creamos la carpeta de hooks si no existe
+          mkdir -p hooks/after_prepare
           
-          # 4. Forzar versiones de SDK
+          # Escribimos un script que limpia el Manifest justo antes de compilar
+          cat << 'EOF' > hooks/after_prepare/fix_manifest.js
+          const fs = require('fs');
+          const path = require('path');
+          const manifestPath = path.join('platforms', 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+          if (fs.existsSync(manifestPath)) {
+              let content = fs.readFileSync(manifestPath, 'utf8');
+              // Reparar prefijos perdidos
+              content = content.replace(/ name=/g, ' android:name=');
+              content = content.replace(/ :name=/g, ' android:name=');
+              // Eliminar líneas de uses-permission que NO tengan el prefijo android:name
+              const lines = content.split('\n');
+              const filteredLines = lines.filter(line => {
+                  if (line.includes('<uses-permission') && !line.includes('android:name=')) return false;
+                  return true;
+              });
+              fs.writeFileSync(manifestPath, filteredLines.join('\n'), 'utf8');
+              console.log('--- HOOK: AndroidManifest.xml limpiado con éxito ---');
+          }
+          EOF
+
+          # Dar permisos al hook y registrarlo en config.xml
+          chmod +x hooks/after_prepare/fix_manifest.js
+          sed -i '/<\/widget>/i <hook type="after_prepare" src="hooks\/after_prepare\/fix_manifest.js" \/>' config.xml
+
+          # 3. Forzar SDK y permisos
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
-          
-          # 5. Permisos de ejecución
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
           
       - name: 7. Build APK
