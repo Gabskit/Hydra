@@ -36,24 +36,29 @@ jobs:
           # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Patch Plugins & Force SDK
+      - name: 6. Parchear Plugin, XML y Manifest (Nuclear Fix)
         run: |
-          # 1. FIX BARCODESCANNER: Replace removed 'compile' with 'implementation'
+          # 1. Fix BarcodeScanner 'compile' error
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. MANIFEST REPAIR: Just in case, fix any attributes that lost the 'android' prefix
-          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :name/ android:name/g' {} +
-          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :required/ android:required/g' {} +
-
-          # 3. FORCE STABLE SDK: Avoid issues with experimental SDK 36
+          # 2. REPARACIÓN AGRESIVA DEL MANIFEST
+          # Buscamos cualquier atributo que empiece por espacio + colon y le ponemos ' android'
+          # Esto arregla :name, :required, :configChanges, etc.
+          sed -i 's/\ :\([a-zA-Z]\)/ android:\1/g' platforms/android/app/src/main/AndroidManifest.xml
+          
+          # 3. VERIFICACIÓN (Esto saldrá en tu log de GitHub Actions para que podamos verlo)
+          echo "--- REVISANDO MANIFEST ---"
+          grep "uses-permission" platforms/android/app/src/main/AndroidManifest.xml | head -n 5
+          
+          # 4. Forzar versiones de SDK y suprimir avisos de SDK 36
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
           
-          # 4. EXECUTION PERMISSIONS
+          # 5. Permisos
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
-
+      
       - name: 7. Build APK
         run: |
           # Use --device flag to ensure a proper APK is packaged
