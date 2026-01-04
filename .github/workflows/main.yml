@@ -43,7 +43,7 @@ jobs:
       - name: 6. Compilar APK
         run: |
           # Usamos --no-telemetry y --stacktrace para diagnosticar si falla
-          cordova build android --debug --stacktrace --warning-mode all
+          cordova build android --no-telemetry --debug --stacktrace --warning-mode all
 
       - name: 7. Subir APK resultante
         uses: actions/upload-artifact@v4
