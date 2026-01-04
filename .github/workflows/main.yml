@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: vbbb
-        run: |
-           cordova platform remove android
            
       - name: 1. Descargar codigo
         uses: actions/checkout@v4
@@ -42,7 +39,9 @@ jobs:
           
           # 3. Añadir la plataforma Android
           # Esto descargará automáticamente Gradle 8.10+ compatible con JDK 17
+          cordova platform remove android
           cordova platform add android@latest
+
            
 
       - name: Accept Android SDK Licenses
