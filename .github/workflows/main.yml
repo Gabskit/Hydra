@@ -36,29 +36,34 @@ jobs:
           # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Parchear Plugin, XML y Manifest (Nuclear Fix)
+      - name: 6. Parchear Plugin, XML y Manifest (Sniper Fix)
         run: |
           # 1. Fix BarcodeScanner 'compile' error
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. REPARACIÓN AGRESIVA DEL MANIFEST
-          # Buscamos cualquier atributo que empiece por espacio + colon y le ponemos ' android'
-          # Esto arregla :name, :required, :configChanges, etc.
-          sed -i 's/\ :\([a-zA-Z]\)/ android:\1/g' platforms/android/app/src/main/AndroidManifest.xml
+          # 2. REPARACIÓN DEL MANIFEST (El error real: name= en lugar de android:name=)
+          # Buscamos cualquier ' name=' que no tenga el prefijo 'android:' y se lo ponemos
+          # También lo hacemos para 'required='
+          sed -i 's/\ name=/ android:name=/g' platforms/android/app/src/main/AndroidManifest.xml
+          sed -i 's/\ required=/ android:required=/g' platforms/android/app/src/main/AndroidManifest.xml
           
-          # 3. VERIFICACIÓN (Esto saldrá en tu log de GitHub Actions para que podamos verlo)
-          echo "--- REVISANDO MANIFEST ---"
+          # Limpieza extra: Eliminar duplicados si los hay (vimos dos INTERNET permissions en tu log)
+          # Esto evita que el Manifest Merger se queje por entradas repetidas
+          sort -u platforms/android/app/src/main/AndroidManifest.xml -o platforms/android/app/src/main/AndroidManifest.xml
+
+          # 3. VERIFICACIÓN (Para confirmar en el log)
+          echo "--- REVISANDO MANIFEST CORREGIDO ---"
           grep "uses-permission" platforms/android/app/src/main/AndroidManifest.xml | head -n 5
           
-          # 4. Forzar versiones de SDK y suprimir avisos de SDK 36
-          echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
-          echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
+          # 4. Forzar versiones de SDK
+          echo "cdvCompileSdkVersion=36" >> platforms/android/gradle.properties
+          echo "cdvTargetSdkVersion=36" >> platforms/android/gradle.properties
           echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
           
           # 5. Permisos
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
-      
+          
       - name: 7. Build APK
         run: |
           # Use --device flag to ensure a proper APK is packaged
