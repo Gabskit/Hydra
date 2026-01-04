@@ -45,10 +45,15 @@ jobs:
 
       - name: 6. Compilar APK
         run: |
-          # Usamos --no-telemetry y --stacktrace para diagnosticar si falla
-          cd platforms/android
-          ./gradlew assembleDebug --stacktrace --info
-          cordova build android --no-telemetry --debug --stacktrace --warning-mode
+          # 1. Asegurarnos de que estamos en la raíz para que Cordova funcione
+          # 2. Dar permisos al wrapper si planeas usarlo (opcional pero recomendado)
+          if [ -f "platforms/android/gradlew" ]; then
+            chmod +x platforms/android/gradlew
+          fi
+          
+          # 3. Usar SOLO el comando de cordova para construir
+          # Esto evita errores de "file not found" y maneja las dependencias automáticamente
+          cordova build android --debug --no-telemetry --stacktrace
 
       - name: 7. Subir APK resultante
         uses: actions/upload-artifact@v4
