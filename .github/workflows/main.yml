@@ -36,22 +36,25 @@ jobs:
       - name: 5.5 Prepare Platform
         run: cordova prepare android
         
-      - name: 6. Parchear Plugin BarcodeScanner y Fix SDK
+      - name: 6. Parchear Plugin, XML y Manifest
         run: |
-          # 1. SOLUCIÓN AL ERROR DE REGEX: Solo parchear el plugin problemático, no todo el proyecto
-          # Buscamos específicamente en la carpeta del plugin de códigos de barras
+          # 1. Corregir el Namespace en config.xml (Raíz del problema)
+          sed -i 's/<widget/<widget xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android"/' config.xml
+
+          # 2. Parchear el Plugin BarcodeScanner (Error de Gradle 'compile')
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. SOLUCIÓN AL ERROR DE SDK: Inyectar variables en los archivos correctos
-          # Cordova Android 13 usa cdvCompileSdkVersion
+          # 3. FIX CRÍTICO: Reparar el AndroidManifest corrompido
+          # Esto busca los atributos ':name' que perdieron el prefijo 'android' y se los devuelve
+          sed -i 's/\ :name/ android:name/g' platforms/android/app/src/main/AndroidManifest.xml
+          sed -i 's/\ :required/ android:required/g' platforms/android/app/src/main/AndroidManifest.xml
+
+          # 4. Forzar versiones de SDK en gradle.properties
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           
-          # También lo forzamos en local.properties por si acaso
-          echo "sdk.dir=$ANDROID_HOME" > platforms/android/local.properties
-          
-          # 3. Permisos de ejecución al wrapper (usando find para evitar errores de ruta)
+          # 5. Permisos de ejecución
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
           
       - name: 7. Compilar APK
