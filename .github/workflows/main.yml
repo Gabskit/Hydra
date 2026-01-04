@@ -28,37 +28,37 @@ jobs:
       - name: 4. Instalar Cordova
         run: npm install -g cordova
 
-      - name: 5. Preparar Config y Añadir Plataforma
+      - name: 5. Fix Config & Add Platform
         run: |
-          # FIJAR EL PROBLEMA DE RAÍZ: Inyectar el namespace en config.xml ANTES de añadir la plataforma
+          # 1. FIX THE SOURCE: Add the missing namespace to config.xml before Cordova touches it
           sed -i 's/<widget/<widget xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android"/' config.xml
           
-          # Añadir la plataforma (esto leerá el config.xml ya corregido)
+          # 2. Add platform - This will now generate a HEALTHY AndroidManifest.xml
           cordova platform add android@13.0.0 --save
 
-      - name: 6. Parchear Archivos Generados
+      - name: 6. Patch Plugins & Force SDK
         run: |
-          # 1. Reparar el AndroidManifest (Fuerza bruta contra el error 'Missing name key')
-          # Buscamos patrones como ' :name' o ' :required' que perdieron el prefijo
-          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :name/ android:name/g' {} +
-          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :required/ android:required/g' {} +
-          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :targetActivity/ android:targetActivity/g' {} +
-
-          # 2. Corregir el plugin BarcodeScanner (Error 'compile')
+          # 1. FIX BARCODESCANNER: Replace removed 'compile' with 'implementation'
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
           find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 3. Forzar SDK 34 (Evitar el error de SDK 36 que sale en tus logs)
+          # 2. MANIFEST REPAIR: Just in case, fix any attributes that lost the 'android' prefix
+          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :name/ android:name/g' {} +
+          find platforms/android/app/src/main/ -name "AndroidManifest.xml" -exec sed -i 's/\ :required/ android:required/g' {} +
+
+          # 3. FORCE STABLE SDK: Avoid issues with experimental SDK 36
           echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
           echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           echo "android.suppressUnsupportedCompileSdk=36" >> platforms/android/gradle.properties
           
-          # 4. Dar permisos al wrapper
+          # 4. EXECUTION PERMISSIONS
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
 
-      - name: 7. Compilar APK
-        run: cordova build android --debug --device --no-telemetry
-        
+      - name: 7. Build APK
+        run: |
+          # Use --device flag to ensure a proper APK is packaged
+          cordova build android --debug --device --no-telemetry
+          
       - name: 8. Subir APK resultante
         uses: actions/upload-artifact@v4
         with:
