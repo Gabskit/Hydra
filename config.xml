@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.polar.hydraria" version="0.0.8" xmlns="www.w3.org" xmlns:cdv="cordova.apache.org">
+<widget id="com.polar.hydraria" version="0.0.8" xmlns="www.w3.org" xmlns:cdv="cordova.apache.org" xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- App Info -->
     <name>Hydraria</name>
