@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '18'
+          java-version: '21'
 
       - name: 3. Instalar Node.js
         uses: actions/setup-node@v4
@@ -39,10 +39,15 @@ jobs:
           # 3. Añadir la plataforma Android
           # Esto descargará automáticamente Gradle 8.10+ compatible con JDK 17
           cordova platform add android
-          
+
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses
+
       - name: 6. Compilar APK
         run: |
           # Usamos --no-telemetry y --stacktrace para diagnosticar si falla
+          cd platforms/android
+          ./gradlew assembleDebug --stacktrace --info
           cordova build android --no-telemetry --debug --stacktrace --warning-mode
 
       - name: 7. Subir APK resultante
