@@ -38,17 +38,20 @@ jobs:
         
       - name: 6. Parchear Plugin BarcodeScanner y Fix SDK
         run: |
-          # 1. Reemplazar 'compile' por 'implementation' en cualquier archivo gradle
-          find platforms/android/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
-          find platforms/android/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
+          # 1. SOLUCIÓN AL ERROR DE REGEX: Solo parchear el plugin problemático, no todo el proyecto
+          # Buscamos específicamente en la carpeta del plugin de códigos de barras
+          find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile(/implementation(/g' {} +
+          find platforms/android/phonegap-plugin-barcodescanner/ -name "*.gradle" -exec sed -i 's/compile /implementation /g' {} +
           
-          # 2. Inyectar variables de SDK en gradle.properties
-          # El archivo suele estar en platforms/android/gradle.properties
-          [ -f platforms/android/gradle.properties ] && echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
-          [ -f platforms/android/gradle.properties ] && echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
+          # 2. SOLUCIÓN AL ERROR DE SDK: Inyectar variables en los archivos correctos
+          # Cordova Android 13 usa cdvCompileSdkVersion
+          echo "cdvCompileSdkVersion=34" >> platforms/android/gradle.properties
+          echo "cdvTargetSdkVersion=34" >> platforms/android/gradle.properties
           
-          # 3. Localizar y dar permisos a gradlew de forma recursiva
-          # Esto evita el error de "No such file or directory"
+          # También lo forzamos en local.properties por si acaso
+          echo "sdk.dir=$ANDROID_HOME" > platforms/android/local.properties
+          
+          # 3. Permisos de ejecución al wrapper (usando find para evitar errores de ruta)
           find platforms/android/ -name "gradlew" -exec chmod +x {} +
           
       - name: 7. Compilar APK
