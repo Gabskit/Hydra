@@ -27,7 +27,7 @@ document.addEventListener("alpine:init", () => {
     Alpine.data('lobbyHydraria', () => ({
     role: 'none',
     count: 1,
-
+    max: 4,
     setupHost() {
       this.role = 'host';
       networkinterface.getWiFiIPAddress((ip) => {
@@ -36,7 +36,7 @@ document.addEventListener("alpine:init", () => {
         
         // Generamos el QR automáticamente
         new QRCode(document.getElementById("qrcode"), {
-            text: ip,
+            text: ip + ":8080",
             width: 128,
             height: 128
         });

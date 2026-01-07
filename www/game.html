@@ -46,22 +46,22 @@
       transition: 0.5s !important;
     }
   </style>
-  <script src="game.js"></script>
-  <script type="text/javascript" src="cdn_modules/p5.js@2.0.5/p5.min.js"></script>
+  <script type="text/javascript" src="cdn_modules/stage.js@0.8.10/stage.cordova.js"></script>
   <script type="text/javascript" src="cdn_modules/socket.io@4.8.1/socket.io.js"></script>
+  <script src="game.js"></script>
 </head>
 <body>
   <div x-data="gamescn" data-role="page" id="game">
-    <div data-role="header" data-theme="b" style="display: flex; align-items: center; justify-content: space-around;">
+    <div data-role="header" data-theme="b" style="display: flex; align-items: center; justify-content: left; padding: 0.5em;">
       <div><a href="#pausa" data-role="button" data-theme="a" data-rel="dialog" data-icon="pause" data-iconpos="notext"></a></div>
       <div>
         <a href="#chat" data-role="button" data-theme="a" data-rel="popup" data-transition="pop">#</a>
       </div>
       <div data-role="popup" id="chat" style="max-width: 360px; max-height: 480px; display: block;">
         <div style="padding: 0.8em;">
-          <p x-text="lochat" class="Sniglet"></p>
+          <p x-html="lochat" class="Sniglet"></p>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-around;">
+        <div class="ui-bar ui-bar-b" style="display: flex; align-items: center; justify-content: space-around; border-radius: inherit;">
           <input type="text" name="msg" id="msg">
           <button data-icon="arrow-r" data-iconpos="notext"></button>
         </div>
