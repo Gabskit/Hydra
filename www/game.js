@@ -1,6 +1,6 @@
 var size = [0 , 0]
 var scr = 0
-var irchat = ""
+var irchat = "<div class='ui-bar ui-bar-d Comfortaa' style='border-radius: inherit;'> sistema: Hola </div><br>"
 let socket;
 let players = {};
 document.addEventListener("alpine:init", () => {
@@ -39,17 +39,8 @@ $(document).on("pageshow resize", function() {
   fillContent();
 });
 
-function setup() {
-  var canvas = createCanvas(size[0],size[1])
-  const ip = localStorage.getItem('serverIP');
-  socket = new WebSocket(`ws://${ip}:8080`);
+const app = Stage.mount({
+  canvas: document.getElementById("container"),
+})
 
-  socket.onmessage = (e) => {
-    let m = JSON.parse(e.data);
-    players[m.id] = m;
-  };
-  canvas.parent('container')
-}
-function draw() {
-  background(127)
-}
+app.viewbox(size[0], size[1])
